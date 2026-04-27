@@ -31,7 +31,8 @@
         </button>
 
         <div class="collapse navbar-collapse" id="mainNav">
-            {{-- Primary Nav --}}
+            {{-- Primary Nav — only shown to authenticated users --}}
+            @auth
             <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-3 gap-1">
                 <li class="nav-item">
                     <a class="nav-link {{ request()->is('/') ? 'active' : '' }}" href="{{ url('/') }}">
@@ -54,17 +55,95 @@
                     </a>
                 </li>
             </ul>
+            @else
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0"></ul>
+            @endauth
 
             {{-- Right side --}}
             <div class="d-flex align-items-center gap-3">
-                <button class="btn btn-sm btn-primary d-flex align-items-center gap-1" data-bs-toggle="modal" data-bs-target="#quickAddModal">
-                    <i class="bi bi-plus-lg"></i> Quick Add
-                </button>
-                <div class="d-flex align-items-center gap-2" style="cursor:pointer;">
-                    <div style="width:34px;height:34px;background:linear-gradient(135deg,#334155,#475569);border-radius:50%;display:flex;align-items:center;justify-content:center;">
-                        <i class="bi bi-person-fill text-slate" style="color:#94a3b8;font-size:.9rem;"></i>
+                @auth
+                    {{-- Quick Add --}}
+                    <button class="btn btn-sm btn-primary d-flex align-items-center gap-1" data-bs-toggle="modal" data-bs-target="#quickAddModal">
+                        <i class="bi bi-plus-lg"></i> Quick Add
+                    </button>
+
+                    {{-- User dropdown --}}
+                    <div class="dropdown">
+                        <button class="btn d-flex align-items-center gap-2 p-0 border-0 bg-transparent"
+                                type="button"
+                                id="userDropdown"
+                                data-bs-toggle="dropdown"
+                                aria-expanded="false"
+                                aria-haspopup="true">
+                            <div style="width:34px;height:34px;background:linear-gradient(135deg,#6366f1,#4f46e5);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.75rem;color:#fff;flex-shrink:0;">
+                                {{ strtoupper(substr(Auth::user()->name, 0, 2)) }}
+                            </div>
+                            <span class="d-none d-sm-inline" style="color:rgba(255,255,255,.75);font-size:.875rem;font-weight:500;">{{ Auth::user()->name }}</span>
+                            <i class="bi bi-chevron-down" style="color:#64748b;font-size:.65rem;"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end mt-2"
+                            aria-labelledby="userDropdown"
+                            style="background:#1e293b;border:1px solid rgba(255,255,255,.08);min-width:210px;box-shadow:0 8px 32px rgba(0,0,0,.4);">
+
+                            {{-- User info header --}}
+                            <li>
+                                <div class="px-3 py-2 d-flex align-items-center gap-2">
+                                    <div style="width:32px;height:32px;background:linear-gradient(135deg,#6366f1,#4f46e5);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.7rem;color:#fff;flex-shrink:0;">
+                                        {{ strtoupper(substr(Auth::user()->name, 0, 2)) }}
+                                    </div>
+                                    <div style="min-width:0;">
+                                        <div class="fw-semibold text-truncate" style="color:#f1f5f9;font-size:.8rem;">{{ Auth::user()->name }}</div>
+                                        <div class="text-truncate" style="color:#475569;font-size:.72rem;">{{ Auth::user()->email }}</div>
+                                    </div>
+                                </div>
+                            </li>
+                            <li><hr class="dropdown-divider my-1" style="border-color:rgba(255,255,255,.07);"></li>
+
+                            {{-- Profile Settings --}}
+                            <li>
+                                <a class="dropdown-item d-flex align-items-center gap-2 py-2"
+                                   href="{{ route('profile') }}"
+                                   style="color:#cbd5e1;font-size:.85rem;">
+                                    <i class="bi bi-person-circle" style="color:#818cf8;width:16px;text-align:center;"></i>
+                                    Profile Settings
+                                </a>
+                            </li>
+
+                            {{-- System Settings --}}
+                            <li>
+                                <a class="dropdown-item d-flex align-items-center gap-2 py-2"
+                                   href="#"
+                                   style="color:#cbd5e1;font-size:.85rem;">
+                                    <i class="bi bi-gear" style="color:#64748b;width:16px;text-align:center;"></i>
+                                    System Settings
+                                </a>
+                            </li>
+
+                            <li><hr class="dropdown-divider my-1" style="border-color:rgba(255,255,255,.07);"></li>
+
+                            {{-- Logout --}}
+                            <li>
+                                <form method="POST" action="{{ route('logout') }}" class="m-0">
+                                    @csrf
+                                    <button type="submit"
+                                            class="dropdown-item d-flex align-items-center gap-2 py-2"
+                                            style="color:#f87171;font-size:.85rem;">
+                                        <i class="bi bi-box-arrow-right" style="width:16px;text-align:center;"></i>
+                                        Log Out
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
                     </div>
-                </div>
+                @else
+                    {{-- Guest links --}}
+                    <a href="{{ route('login') }}" class="btn btn-outline-secondary btn-sm">
+                        <i class="bi bi-box-arrow-in-right me-1"></i> Log In
+                    </a>
+                    <a href="{{ route('register') }}" class="btn btn-primary btn-sm">
+                        <i class="bi bi-person-plus me-1"></i> Register
+                    </a>
+                @endauth
             </div>
         </div>
     </div>
